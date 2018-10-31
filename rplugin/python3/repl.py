@@ -29,7 +29,7 @@ class Repl(object):
         ft = get_buffer_filetype(self.nvim.current.buffer)
 
         if ft not in self.conf:
-            self.nvim.err_output('No repl defined for {}'.format(ft))
+            self.nvim.err_write('No repl defined for {}'.format(ft))
             return
 
         self.nvim.command('vsplit | terminal ' + self.conf[ft]['bin'])
@@ -41,7 +41,7 @@ class Repl(object):
         ft = get_buffer_filetype(buf)
 
         if ft not in self.conf or 'channel' not in self.conf[ft]:
-            self.nvim.err_output('No repl for {} start repl first'.format(ft))
+            self.nvim.err_write('No repl for {} start repl first'.format(ft))
             return
 
         start, end = range
