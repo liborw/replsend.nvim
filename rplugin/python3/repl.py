@@ -21,9 +21,13 @@ class ReplSend(object):
             self.nvim.err_write('No repl defined for {}'.format(ft))
             return
 
-        # open new split with the terminal and get channel number
-        self.nvim.command('vsplit | terminal ' + self.conf[ft]['bin'])
-        self.conf[ft]['channel'] = int(self.nvim.command_output('echo &channel'))
+        # open new split with the terminal
+        cmd = self.conf[ft]['bin'] + ' ' + ' '.join(self.conf[ft]['args'])
+        self.nvim.command('vsplit | terminal ' + cmd)
+
+        # get channel
+        channel = int(self.nvim.command_output('echo &channel'))
+        self.conf[ft]['channel'] = channel
 
         # go batch to the current window
         self.nvim.command('{}wincmd w'.format(win.number))
