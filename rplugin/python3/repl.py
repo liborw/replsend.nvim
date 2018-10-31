@@ -66,6 +66,7 @@ class Repl(object):
         i = index
         while i > 0:
             if buf[i].startswith(conf['section']):
+                i = i + 1
                 break
             i -= 1
         start = i
@@ -74,6 +75,7 @@ class Repl(object):
         i = index + 1
         while i < buflen:
             if buf[i].startswith(conf['section']):
+                i = i - 1
                 break
             i += 1
         end = min(i, buflen-1)
