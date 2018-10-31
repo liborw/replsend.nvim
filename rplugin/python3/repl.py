@@ -1,39 +1,32 @@
+# file: repl.py
+# auth: Libor Wagner <libor.wagner@cvut.cz>
 
 import neovim
 
 
 @neovim.plugin
-class Repl(object):
+class ReplSend(object):
     def __init__(self, nvim):
         self.nvim = nvim
-        self.calls = 0
-        # self.conf = self.nvim.vars['repl_conf']
-
-        self.conf = {
-            "python": {
-                "bin": "ipython",
-                "section": "##",
-                "prefix": "\x1b[200~",
-                "sufix": "\x1b[201~\n\n"
-                },
-            "markdown": {
-                "bin": "ipython",
-                "section": "```",
-                "prefix": "\x1b[200~",
-                "sufix": "\x1b[201~\n\n"
-                }
-        }
+        self.conf = self.nvim.vars['replsend_conf']
 
     @neovim.command('Repl', nargs='*', sync=True)
     def repl(self, args):
+        # get current filetype and window
         ft = get_buffer_filetype(self.nvim.current.buffer)
+        win = self.nvim.current.window
 
+        # check whether we have repr configured
         if ft not in self.conf:
             self.nvim.err_write('No repl defined for {}'.format(ft))
             return
 
+        # open new split with the terminal and get channel number
         self.nvim.command('vsplit | terminal ' + self.conf[ft]['bin'])
         self.conf[ft]['channel'] = int(self.nvim.command_output('echo &channel'))
+
+        # go batch to the current window
+        self.nvim.command('{}wincmd w'.format(win.number))
 
     @neovim.command('ReplSend', nargs='*', range='', sync=True)
     def repl_send(self, args, range):
@@ -50,9 +43,6 @@ class Repl(object):
             start, end = self.get_section(self.conf[ft], buf, start-1)
         else:
             start = start - 1
-            end = end
-        
-        self.nvim.command('echo "range {}:{}"'.format(start, end))
 
         lines = buf[start:end]
         text = self.format(self.conf[ft], lines)
@@ -75,7 +65,6 @@ class Repl(object):
         i = index + 1
         while i < buflen:
             if buf[i].startswith(conf['section']):
-                i = i - 1
                 break
             i += 1
         end = min(i, buflen-1)
