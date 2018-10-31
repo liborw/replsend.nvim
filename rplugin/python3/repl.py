@@ -47,7 +47,7 @@ class Repl(object):
         start, end = range
 
         if start == end:
-            start, end = self.get_section(self.conf[ft], buf, start)
+            start, end = self.get_section(self.conf[ft], buf, start-1)
         else:
             start = start - 1
             end = end
