@@ -10,6 +10,7 @@ class ReplSend(object):
         self.nvim = nvim
         self.conf = self.nvim.vars['replsend_conf']
 
+
     @neovim.command('Repl', nargs='*', sync=True)
     def repl(self, args):
         # get current filetype and window
