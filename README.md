@@ -6,37 +6,41 @@ date:   2018-10-31
 
 # REPL: My first Neovim plugin
 
+After strugling with [iron.vim](https://github.com/Vigemus/iron.nvim), [vim-slime](https://github.com/jpalardy/vim-slime) and other similar plugins I have decided to write my own. One that would be simple, did what I want, and worked with python and matlab. It is written as a remote python plugin using the [python-client](https://github.com/neovim/python-client) module. And it is a first neovim and vim plugin ever.
 
 
-## Testing neovim client in interactive session
+## Installation
 
- - First start the neovim with `NVIM_LISTEN_ADDRESS` set.
+Using [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```
-NVIM_LISTEN_ADDRESS=/tmp/nvim nvim
+Plug 'liborw/replsend.nvim', {'do': ':UpdeteRemotePlugins'}
+
 ```
 
- - Then in python/ipython
+## Configuration
 
-```python
-import neovim
+The proper configuration does not yet work, but the idea is similar to that of [].
 
-nvim = neovim.attach('socket', path='/tmp/nvim')
-nvim.command('echo "test"')
+```
+let g:replsend_conf = {"python":{"bin":"ipython", "section":"##",...}}
 ```
 
- - And `test` should appear in the command section
+## Usage
 
-## Notes
+There are just two commands:
 
- - Get filetype of buffer: `buf.options.get('filetype')`
- - Get channel of terminal: `nvim.command_output(echo &channel)`
- - Send enter to channel
+* **Repl** will start REPL based on the configuration.
+* **ReplSend** will send selection or section to the REPL.
 
+## Limitations
 
-## References
+ - Only single REPL for each filetype
 
- - [repl.nvim](https://gitlab.com/HiPhish/repl.nvim)
- - [nvim-repl](https://github.com/justinmk/nvim-repl)
+## Roadmap
 
+ - [x] start terminal with apropriate repl based on 
+ - [x] send selectin or section into terminal.
+ - [ ] basic configuration (binary, prefix, sufix, section markers)
+ - [ ] get back to the current buffer when opening REPL.
 
