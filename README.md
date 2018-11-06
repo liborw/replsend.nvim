@@ -10,6 +10,7 @@ After strugling with [iron.vim](https://github.com/Vigemus/iron.nvim), [vim-slim
 
 
 ## Installation
+## Testing neovim client in interactive session
 
 Using [vim-plug](https://github.com/junegunn/vim-plug):
 
@@ -43,4 +44,10 @@ There are just two commands:
  - [x] send selectin or section into terminal.
  - [ ] basic configuration (binary, prefix, sufix, section markers)
  - [ ] get back to the current buffer when opening REPL.
+
+## References
+
+ - [repl.nvim](https://gitlab.com/HiPhish/repl.nvim)
+ - [nvim-repl](https://github.com/justinmk/nvim-repl)
+ - [How to debug neovim plugins](https://blog.rplasil.name/2016/03/how-to-debug-neovim-python-remote-plugin.html)
 
