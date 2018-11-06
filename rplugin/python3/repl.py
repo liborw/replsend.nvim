@@ -72,7 +72,7 @@ class ReplSend(object):
             if buf[i].startswith(conf['section']):
                 break
             i += 1
-        end = min(i, buflen-1)
+        end = min(i, buflen)
 
         return (start, end)
 
