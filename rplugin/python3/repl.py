@@ -10,7 +10,6 @@ class ReplSend(object):
         self.nvim = nvim
         self.conf = self.nvim.vars['replsend_conf']
 
-
     @neovim.command('Repl', nargs='*', sync=True)
     def repl(self, args):
         # get current filetype and window
@@ -33,7 +32,7 @@ class ReplSend(object):
         # go batch to the current window
         self.nvim.command('{}wincmd w'.format(win.number))
 
-    @neovim.command('ReplSend', nargs='*', range='', sync=True)
+    @neovim.command('ReplSend', nargs='*', range='', sync=False)
     def repl_send(self, args, range):
         buf = self.nvim.current.buffer
         ft = get_buffer_filetype(buf)
@@ -53,14 +52,36 @@ class ReplSend(object):
         text = self.format(self.conf[ft], lines)
         self.nvim.call('chansend', self.conf[ft]['channel'], text)
 
+    @neovim.command('ReplSendCmd', nargs='*', sync=False)
+    def repl_send_cmd(self, nargs):
+        buf = self.nvim.current.buffer
+        ft = get_buffer_filetype(buf)
+
+        if ft not in self.conf or 'channel' not in self.conf[ft]:
+            self.nvim.err_write('No repl for {} start repl first'.format(ft))
+            return
+
+        self.nvim.call('chansend', self.conf[ft]['channel'], nargs)
+
     def get_section(self, conf, buf, index):
 
         buflen = len(buf)
-
+        
+        # mark all commented regions
+        iscomment = [False]*buflen
+        if 'blockcomment' in conf:
+            comment = False
+            for i in range(buflen):
+                if buf[i].startswith(conf['blockcomment']):
+                    comment = not comment
+                    iscomment[i] = True
+                else:
+                    iscomment[i] = comment
+                    
         # get start
         i = index
         while i > 0:
-            if buf[i].startswith(conf['section']):
+            if buf[i].startswith(conf['section']) and not iscomment[i]:
                 i = i + 1
                 break
             i -= 1
@@ -69,7 +90,7 @@ class ReplSend(object):
         # get end
         i = index + 1
         while i < buflen:
-            if buf[i].startswith(conf['section']):
+            if buf[i].startswith(conf['section']) and not iscomment[i]:
                 break
             i += 1
         end = min(i, buflen)
@@ -78,10 +99,18 @@ class ReplSend(object):
 
     def format(self, conf, lines):
 
+        # strip whitespaces
+        if 'strip' in conf and conf['strip']:
+            lines = [v.strip() for v in lines]
+
+        # strip empty lines
+        if 'noempty' in conf and conf['noempty']:
+            lines = [v for v in lines if len(v) > 0]
+
         s = ''
 
         s += conf.get('prefix', '')
-        s += '\n'.join(lines)
+        s += conf.get('join', '\n').join(lines)
         s += conf.get('sufix', '')
 
         return s
