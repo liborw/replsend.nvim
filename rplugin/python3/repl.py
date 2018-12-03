@@ -77,9 +77,9 @@ class ReplSend(object):
     def get_section(self, conf, buf, index):
 
         buflen = len(buf)
-        
+
         # mark all commented regions
-        iscomment = [False]*buflen
+        iscomment = [False] * buflen
         if 'blockcomment' in conf:
             comment = False
             for i in range(buflen):
@@ -88,7 +88,7 @@ class ReplSend(object):
                     iscomment[i] = True
                 else:
                     iscomment[i] = comment
-                    
+
         # get start
         i = index
         while i > 0:
@@ -129,5 +129,3 @@ class ReplSend(object):
 
 def get_buffer_filetype(buf):
     return buf.options.get('filetype')
-
-
