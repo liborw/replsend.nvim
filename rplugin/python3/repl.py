@@ -43,8 +43,13 @@ class ReplSend(object):
 
         start, end = range
 
-        if start == end:
-            start, end = self.get_section(self.conf[ft], buf, start-1)
+        # is it a visual selection
+        visual = False
+        if 'v' in args:
+            visual = True
+
+        if not visual and start == end:
+            start, end = self.get_section(self.conf[ft], buf, start - 1)
         else:
             start = start - 1
 
@@ -58,10 +63,16 @@ class ReplSend(object):
         ft = get_buffer_filetype(buf)
 
         if ft not in self.conf or 'channel' not in self.conf[ft]:
-            self.nvim.err_write('No repl for {} start repl first'.format(ft))
+            self.nvim.err_write('No repl for {}, start repl first'.format(ft))
             return
 
-        self.nvim.call('chansend', self.conf[ft]['channel'], nargs)
+        arg = ' '.join(nargs) + '\n'
+
+        try:
+            self.nvim.call('chansend', self.conf[ft]['channel'], arg)
+        except neovim.api.NvimError as e:
+            del self.conf[ft]['channel']
+            self.nvim.err_write('No repl for {}, start repl first'.format(ft))
 
     def get_section(self, conf, buf, index):
 
