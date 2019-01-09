@@ -18,7 +18,7 @@ class ReplSend(object):
 
         # check whether we have repr configured
         if ft not in self.conf:
-            self.nvim.err_write('No repl defined for {}'.format(ft))
+            self.nvim.err_write('No repl defined for {}\n'.format(ft))
             return
 
         # open new split with the terminal
@@ -38,7 +38,7 @@ class ReplSend(object):
         ft = get_buffer_filetype(buf)
 
         if ft not in self.conf or 'channel' not in self.conf[ft]:
-            self.nvim.err_write('No repl for {} start repl first'.format(ft))
+            self.nvim.err_write('No repl for {} start repl first\n'.format(ft))
             return
 
         start, end = range
@@ -57,13 +57,17 @@ class ReplSend(object):
         text = self.format(self.conf[ft], lines)
         self.nvim.call('chansend', self.conf[ft]['channel'], text)
 
+    @neovim.command('ReplDebug')
+    def repl_debug(self, nargs='*', sync=True):
+        self.nvim.out_write(str(self.conf) + '\n')
+
     @neovim.command('ReplSendCmd', nargs='*', sync=False)
     def repl_send_cmd(self, nargs):
         buf = self.nvim.current.buffer
         ft = get_buffer_filetype(buf)
 
         if ft not in self.conf or 'channel' not in self.conf[ft]:
-            self.nvim.err_write('No repl for {}, start repl first'.format(ft))
+            self.nvim.err_write('No repl for {}, start repl first\n'.format(ft))
             return
 
         arg = ' '.join(nargs) + '\n'
