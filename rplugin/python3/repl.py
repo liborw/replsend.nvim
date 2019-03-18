@@ -114,6 +114,10 @@ class ReplSend(object):
 
     def format(self, conf, lines):
 
+        # strip comments
+        if conf.get('nocomments', False) and 'comment' in conf:
+            lines = [strip_comments(v, conf['comment']) for v in lines]
+
         # strip whitespaces
         if 'strip' in conf and conf['strip']:
             lines = [v.strip() for v in lines]
@@ -129,6 +133,14 @@ class ReplSend(object):
         s += conf.get('sufix', '')
 
         return s
+
+
+def strip_comments(s, c):
+    try:
+        i = s.index(c)
+    except ValueError:
+        return s
+    return s[:i]
 
 
 def get_buffer_filetype(buf):
