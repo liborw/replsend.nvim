@@ -21,11 +21,61 @@ Plug 'liborw/replsend.nvim', {'do': ':UpdeteRemotePlugins'}
 
 ## Configuration
 
-The proper configuration does not yet work, but the idea is similar to that of [].
+I tis is example of my config:
 
 ```
-let g:replsend_conf = {"python":{"bin":"ipython", "section":"##",...}}
+let g:replsend_conf = {}
+let g:replsend_conf['matlab'] = {
+            \"bin":"matlab",
+            \"args":["-nodesktop", "-nosplash"],
+            \"section":"%%",
+            \"prefix":"",
+            \"sufix":"\n",
+            \"join":",",
+            \"strip":1,
+            \"noempty":1,
+            \"comment":"%",
+            \"nocomments":1
+            \}
+let g:replsend_conf['markdown'] = {
+            \"bin":"ipython3",
+            \"args":["--matplotlib"],
+            \"section":"```",
+            \"prefix":"\x1b[200~",
+            \"sufix":"\x1b[201~\n\n",
+            \"join":"\n",
+            \}
+let g:replsend_conf['python'] = {
+            \"bin":"ipython3",
+            \"args":["--matplotlib"],
+            \"section":"#%%",
+            \"prefix":"\x1b[200~",
+            \"sufix":"\x1b[201~\n\n",
+            \"join":"\n",
+            \}
+let g:replsend_conf['sh'] = {
+            \"bin":"",
+            \"args":[],
+            \"section":"#%%",
+            \"prefix":"\x1b[200~",
+            \"sufix":"\x1b[201~\n",
+            \"join":"\n",
+            \"noempty":1
+            \}
 ```
+
+Options:
+ * **bin**: command to start for this filetype
+ * **args**: arguments of tat command
+ * **section**: string used to split file into section, **ReplSend** will send just current section.
+ * **prefix**: string used befor the input 
+ * **suffix**:
+ * **join**:
+ * **strip (optional)**:
+ * **noempy (optional))** :
+ * **comment (optional)**:
+ * **nocomments (optional):
+ 
 
 ## Usage
 
@@ -33,6 +83,7 @@ There are just two commands:
 
 * **Repl** will start REPL based on the configuration.
 * **ReplSend** will send selection or section to the REPL.
+* **ReplSendCmd** send argument of this command to the REPL 
 
 ## Limitations
 
@@ -40,10 +91,10 @@ There are just two commands:
 
 ## Roadmap
 
- - [x] start terminal with apropriate repl based on 
+ - [x] start terminal with apropriate repl based on filetype
  - [x] send selectin or section into terminal.
- - [ ] basic configuration (binary, prefix, sufix, section markers)
- - [ ] get back to the current buffer when opening REPL.
+ - [x] basic configuration (binary, prefix, sufix, section markers)
+ - [x] get back to the current buffer when opening REPL.
 
 ## References
 
