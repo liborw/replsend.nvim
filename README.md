@@ -6,6 +6,8 @@ date:   2018-10-31
 
 # REPL: My first Neovim plugin
 
+![replsend_sh](fig/replsend_sh.svg)
+
 After strugling with [iron.vim](https://github.com/Vigemus/iron.nvim), [vim-slime](https://github.com/jpalardy/vim-slime) and other similar plugins I have decided to write my own. One that would be simple, did what I want, and worked with python and matlab. It is written as a remote python plugin using the [python-client](https://github.com/neovim/python-client) module. And it is a first neovim and vim plugin ever.
 
 
