@@ -10,7 +10,6 @@ After strugling with [iron.vim](https://github.com/Vigemus/iron.nvim), [vim-slim
 
 
 ## Installation
-## Testing neovim client in interactive session
 
 Using [vim-plug](https://github.com/junegunn/vim-plug):
 
@@ -18,6 +17,15 @@ Using [vim-plug](https://github.com/junegunn/vim-plug):
 Plug 'liborw/replsend.nvim', {'do': ':UpdeteRemotePlugins'}
 
 ```
+
+## Usage
+
+ - `Repl` to start REPL based on current buffers filetype
+ - `Repl <ft>` to start REPL with `<ft>` (usefull for markdown)
+ - `ReplSend` sends section to REPL
+ - `ReplSendCmd <cmd>` sends `<cmd>` to REPL
+
+
 
 ## Configuration
 
@@ -66,28 +74,20 @@ let g:replsend_conf['sh'] = {
 
 Options:
  * **bin**: command to start for this filetype
- * **args**: arguments of tat command
+ * **args**: arguments of that command
  * **section**: string used to split file into section, **ReplSend** will send just current section.
- * **prefix**: string used befor the input 
- * **suffix**:
- * **join**:
- * **strip (optional)**:
- * **noempy (optional))** :
- * **comment (optional)**:
- * **nocomments (optional):
+ * **prefix**: string placed before the input 
+ * **suffix**: string placed after the input
+ * **join (default: \n)**: string used to join input lines
+ * **strip (dafault: 0)**: strip whitespaces
+ * **noempy (defautl: 0)**: strip empty lines
+ * **comment (optional)**: comment characters (only single line comments are supported at the moment)
+ * **nocomments (defautl: 0):** remove comment from input
  
-
-## Usage
-
-There are just two commands:
-
-* **Repl** will start REPL based on the configuration.
-* **ReplSend** will send selection or section to the REPL.
-* **ReplSendCmd** send argument of this command to the REPL 
 
 ## Limitations
 
- - Only single REPL for each filetype
+ - Only single REPL for session
 
 ## Roadmap
 
@@ -95,6 +95,7 @@ There are just two commands:
  - [x] send selectin or section into terminal.
  - [x] basic configuration (binary, prefix, sufix, section markers)
  - [x] get back to the current buffer when opening REPL.
+ - [x] for markdown start REPL with different filetypes
 
 ## References
 
