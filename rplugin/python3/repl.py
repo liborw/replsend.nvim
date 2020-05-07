@@ -9,6 +9,7 @@ class ReplSend(object):
     def __init__(self, nvim):
         self.nvim = nvim
         self.conf = self.nvim.vars['replsend_conf']
+        self.repl_ft = None
         self.repl_channel = None
 
     @neovim.command('Repl', nargs='*', sync=True)
@@ -36,6 +37,7 @@ class ReplSend(object):
 
         # go batch to the current window
         self.nvim.command('{}wincmd w'.format(win.number))
+        self.repl_ft = ft
 
     @neovim.command('ReplSend', nargs='*', range='', sync=False)
     def repl_send(self, args, range):
@@ -46,7 +48,6 @@ class ReplSend(object):
         if self.repl_channel is None:
             self.nvim.err_write('No repl started\n'.format())
             return
-
 
         # is it a visual selection
         visual = False
@@ -61,7 +62,7 @@ class ReplSend(object):
 
         # get and format text
         lines = buf[start:end]
-        text = self.format(self.conf[ft], lines)
+        text = self.format(self.conf[self.repl_ft], lines)
 
         # try to send text to channel
         try:
