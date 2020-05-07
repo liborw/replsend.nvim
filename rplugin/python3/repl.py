@@ -9,11 +9,17 @@ class ReplSend(object):
     def __init__(self, nvim):
         self.nvim = nvim
         self.conf = self.nvim.vars['replsend_conf']
+        self.repl_channel = None
 
     @neovim.command('Repl', nargs='*', sync=True)
     def repl(self, args):
+
         # get current filetype and window
-        ft = get_buffer_filetype(self.nvim.current.buffer)
+        if len(args) > 0:
+            ft = args[0]
+        else:
+            ft = get_buffer_filetype(self.nvim.current.buffer)
+
         win = self.nvim.current.window
 
         # check whether we have repr configured
@@ -26,8 +32,7 @@ class ReplSend(object):
         self.nvim.command('vsplit | terminal ' + cmd)
 
         # get channel
-        channel = int(self.nvim.command_output('echo &channel'))
-        self.conf[ft]['channel'] = channel
+        self.repl_channel = int(self.nvim.command_output('echo &channel'))
 
         # go batch to the current window
         self.nvim.command('{}wincmd w'.format(win.number))
@@ -36,26 +41,34 @@ class ReplSend(object):
     def repl_send(self, args, range):
         buf = self.nvim.current.buffer
         ft = get_buffer_filetype(buf)
+        start, end = range
 
-        if ft not in self.conf or 'channel' not in self.conf[ft]:
-            self.nvim.err_write('No repl for {} start repl first\n'.format(ft))
+        if self.repl_channel is None:
+            self.nvim.err_write('No repl started\n'.format())
             return
 
-        start, end = range
 
         # is it a visual selection
         visual = False
         if 'v' in args:
             visual = True
 
+        # get section start and end indexes
         if not visual and start == end:
             start, end = self.get_section(self.conf[ft], buf, start - 1)
         else:
             start = start - 1
 
+        # get and format text
         lines = buf[start:end]
         text = self.format(self.conf[ft], lines)
-        self.nvim.call('chansend', self.conf[ft]['channel'], text)
+
+        # try to send text to channel
+        try:
+            self.nvim.call('chansend', self.repl_channel, text)
+        except neovim.api.NvimError as e:
+            self.repl_channel = None
+            self.nvim.err_write('No repl for {}, start repl first'.format(ft))
 
     @neovim.command('ReplDebug')
     def repl_debug(self, nargs='*', sync=True):
@@ -64,18 +77,19 @@ class ReplSend(object):
     @neovim.command('ReplSendCmd', nargs='*', sync=False)
     def repl_send_cmd(self, nargs):
         buf = self.nvim.current.buffer
-        ft = get_buffer_filetype(buf)
 
-        if ft not in self.conf or 'channel' not in self.conf[ft]:
+        if self.repl_channel is None:
             self.nvim.err_write('No repl for {}, start repl first\n'.format(ft))
             return
 
-        arg = ' '.join(nargs) + '\n'
+        # get command
+        cmd = ' '.join(nargs) + '\n'
 
+        # try to send command to channel
         try:
-            self.nvim.call('chansend', self.conf[ft]['channel'], arg)
+            self.nvim.call('chansend', self.repl_channel, cmd)
         except neovim.api.NvimError as e:
-            del self.conf[ft]['channel']
+            self.repl_channel = None
             self.nvim.err_write('No repl for {}, start repl first'.format(ft))
 
     def get_section(self, conf, buf, index):
