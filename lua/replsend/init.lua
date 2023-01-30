@@ -1,16 +1,43 @@
 
 local api = vim.api
-local uv = vim.loop
 
 local M = {}
 
 local default_options = {
-  section_sep = "#%%",
-  comment = "#"
-
+  languages = {
+    sh = {
+      bin = "/usr/bin/bash",
+      args = {},
+      section_sep = "#%%",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    },
+    python = {
+      bin = "/usr/bin/python",
+      args = {},
+      section_sep = "#%%",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    },
+    mdpy = {
+      bin = "/usr/bin/python",
+      args = {},
+      section_sep = "```",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    }
+  }
 }
 
+
 M.options = default_options
+M.channel = nil
 
 function M.setup(options)
 
@@ -20,22 +47,40 @@ function M.setup(options)
     M.options = default_options
   end
 
+  vim.api.nvim_create_user_command("Repl", function (args) M.start(args.args) end, {nargs='?'})
+  vim.api.nvim_create_user_command("ReplSend", M.send, {range="%"})
+  api.nvim_set_keymap('n', '<a-cr>', ':ReplSend<cr>', {noremap = true})
+  api.nvim_set_keymap('v', '<a-cr>', ':ReplSend<cr>', {noremap = true})
+
 end
 
 
+local function get_lang_options(lang)
 
-function M.start()
-  local buf = api.nvim_get_current_buf()
-  local filetype = 'python'
+  local options
+  if lang ~= nil and lang ~= "" then
+    options = M.options.languages[lang]
+  else
+    options = M.options.languages[vim.bo.filetype]
+  end
+
+  return options
+end
 
 
+function M.start(lang)
+  local opt = get_lang_options(lang)
+  local win = api.nvim_get_current_win()
+  api.nvim_command("vsplit | term " .. opt.bin)
+  M.channel = tonumber(api.nvim_command_output("echo &channel"))
+  vim.api.nvim_set_current_win(win)
 end
 
 
 local function get_section(lines, row, sep)
 
   local i0 = row
-  while i0 >= 0
+  while i0 > 1
   do
     if lines[i0]:find(sep,  1, true) then
       break
@@ -52,59 +97,44 @@ local function get_section(lines, row, sep)
     i1 = i1 + 1
   end
 
+  if i1 > #lines then
+    i1 = #lines
+  end
 
   return i0, i1
 end
 
-function M.send()
+function M.send(args)
   local buf = api.nvim_get_current_buf()
   local lines = api.nvim_buf_get_lines(buf, 0, -1, false)
+  local win = api.nvim_get_current_win()
+  local opt = get_lang_options()
 
-  -- in what mode we are
-  local mode = api.nvim_get_mode()["mode"]
-  local from, to
-  if mode == 'v' then
-    from = vim.api.nvim_buf_get_mark(0, "<")[1]
-    to = vim.api.nvim_buf_get_mark(0, ">")[1]
-  else
-    local row = vim.api.nvim_win_get_cursor(buf)[1]
-    from, to = get_section(lines, row, M.options.section_sep)
+  if opt == nil then
+    print("Unsupported language")
+    return
   end
 
-  vim.api.nvim_echo({{string.format("start: %s end: %s", from, to)}}, false, {})
+  local from, to
+  if args.range ~= 0 then
+    from = args.line1
+    to = args.line2
+  else
+    local row = vim.api.nvim_win_get_cursor(win)[1]
+    from, to = get_section(lines, row, opt.section_sep)
+  end
 
   local code = {}
+  table.insert(code, opt.prefix)
   for i = from,to do
-    if lines[i]:find(M.options.comment, 1, true) ~= 1 then
+    if lines[i]:find(opt.comment, 1, true) ~= 1 then
       table.insert(code, lines[i])
     end
   end
+  table.insert(code, opt.suffix)
 
-
-
-end
-
-function M.status()
-
-  local start_win = vim.api.nvim_get_current_win()
-
-  vim.api.nvim_command('botright vnew')
-  local win = vim.api.nvim_get_current_win()
-  local buf = vim.api.nvim_get_current_buf()
-
-  vim.api.nvim_buf_set_name(buf, 'Equals Status #' .. buf)
-  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
-  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
-
-
-  local list = {}
-
-  table.insert(list, "# Options")
-
-  table.insert(list, string.format(" filetype: %s", vim.bo.filetype))
-
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, list)
+  local input = table.concat(code, opt.join)
+  vim.api.nvim_chan_send(M.channel, input)
 end
 
 
