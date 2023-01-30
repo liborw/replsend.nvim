@@ -49,8 +49,6 @@ function M.setup(options)
 
   vim.api.nvim_create_user_command("Repl", function (args) M.start(args.args) end, {nargs='?'})
   vim.api.nvim_create_user_command("ReplSend", M.send, {range="%"})
-  api.nvim_set_keymap('n', '<a-cr>', ':ReplSend<cr>', {noremap = true})
-  api.nvim_set_keymap('v', '<a-cr>', ':ReplSend<cr>', {noremap = true})
 
 end
 

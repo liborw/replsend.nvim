@@ -4,19 +4,16 @@ author: Libor Wagner <libor.wagner@cvut.cz>
 date:   2018-10-31
 ---
 
-# REPL: My first Neovim plugin
+# ReplSend: Dead Simple Universel REPL
 
 ![replsend_sh](fig/replsend_sh.svg)
-
-After strugling with [iron.vim](https://github.com/Vigemus/iron.nvim), [vim-slime](https://github.com/jpalardy/vim-slime) and other similar plugins I have decided to write my own. One that would be simple, did what I want, and worked with python and matlab. It is written as a remote python plugin using the [python-client](https://github.com/neovim/python-client) module. And it is a first neovim and vim plugin ever.
-
 
 ## Installation
 
 Using [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```
-Plug 'liborw/replsend.nvim', {'do': ':UpdeteRemotePlugins'}
+Plug 'liborw/replsend.nvim'
 
 ```
 
@@ -25,67 +22,57 @@ Plug 'liborw/replsend.nvim', {'do': ':UpdeteRemotePlugins'}
  - `Repl` to start REPL based on current buffers filetype
  - `Repl <ft>` to start REPL with `<ft>` (usefull for markdown)
  - `ReplSend` sends section to REPL
- - `ReplSendCmd <cmd>` sends `<cmd>` to REPL
-
-
 
 ## Configuration
 
-I tis is example of my config:
+Default configuration:
 
-```
-let g:replsend_conf = {}
-let g:replsend_conf['matlab'] = {
-            \"bin":"matlab",
-            \"args":["-nodesktop", "-nosplash"],
-            \"section":"%%",
-            \"prefix":"",
-            \"sufix":"\n",
-            \"join":",",
-            \"strip":1,
-            \"noempty":1,
-            \"comment":"%",
-            \"nocomments":1
-            \}
-let g:replsend_conf['markdown'] = {
-            \"bin":"ipython3",
-            \"args":["--matplotlib"],
-            \"section":"```",
-            \"prefix":"\x1b[200~",
-            \"sufix":"\x1b[201~\n\n",
-            \"join":"\n",
-            \}
-let g:replsend_conf['python'] = {
-            \"bin":"ipython3",
-            \"args":["--matplotlib"],
-            \"section":"#%%",
-            \"prefix":"\x1b[200~",
-            \"sufix":"\x1b[201~\n\n",
-            \"join":"\n",
-            \}
-let g:replsend_conf['sh'] = {
-            \"bin":"",
-            \"args":[],
-            \"section":"#%%",
-            \"prefix":"\x1b[200~",
-            \"sufix":"\x1b[201~\n",
-            \"join":"\n",
-            \"noempty":1
-            \}
+```lua
+local default_options = {
+  languages = {
+    sh = {
+      bin = "/usr/bin/bash",
+      args = {},
+      section_sep = "#%%",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    },
+    python = {
+      bin = "/usr/bin/python",
+      args = {},
+      section_sep = "#%%",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    },
+    md = {
+      bin = "/usr/bin/python",
+      args = {},
+      section_sep = "```",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
+    }
+  }
+}
 ```
 
 Options:
  * **bin**: command to start for this filetype
  * **args**: arguments of that command
  * **section**: string used to split file into section, **ReplSend** will send just current section.
- * **prefix**: string placed before the input 
+ * **prefix**: string placed before the input
  * **suffix**: string placed after the input
  * **join (default: \n)**: string used to join input lines
- * **strip (dafault: 0)**: strip whitespaces
- * **noempy (defautl: 0)**: strip empty lines
- * **comment (optional)**: comment characters (only single line comments are supported at the moment)
- * **nocomments (defautl: 0):** remove comment from input
- 
+ * **strip (dafault: 0)**: strip whitespaces (not in lua version)
+ * **noempy (defautl: 0)**: strip empty lines (not in lua version)
+ * **comment (optional)**: comment characters (only single line comments are supported at the moment) (not in lua version)
+ * **nocomments (defautl: 0):** remove comment from input (not in lua version)
+
 
 ## Limitations
 
@@ -98,6 +85,8 @@ Options:
  - [x] basic configuration (binary, prefix, sufix, section markers)
  - [x] get back to the current buffer when opening REPL.
  - [x] for markdown start REPL with different filetypes
+ - [x] lua implementation
+ - [ ] make it more user friendly
 
 ## References
 
