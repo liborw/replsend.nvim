@@ -116,6 +116,7 @@ function M.send(args)
     vim.api.nvim_err_writeln('REPL not started or started for different filetype')
     return
   end
+  local opt = M.options.languages[ft]
 
   local from, to
   if args.range ~= 0 then
