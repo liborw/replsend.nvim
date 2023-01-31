@@ -52,7 +52,6 @@ function M.setup(options)
 
 end
 
-
 local function get_lang_options(lang)
 
   local options
@@ -65,15 +64,19 @@ local function get_lang_options(lang)
   return options
 end
 
-
 function M.start(lang)
-  local opt = get_lang_options(lang)
   local win = api.nvim_get_current_win()
+
+  local opt = get_lang_options(lang)
+  if opt == nil then
+    vim.api.nvim_echom({{'No Repl defined', 'None'}}, false, {})
+    return
+  end
+
   api.nvim_command("vsplit | term " .. opt.bin)
   M.channel = tonumber(api.nvim_command_output("echo &channel"))
   vim.api.nvim_set_current_win(win)
 end
-
 
 local function get_section(lines, row, sep)
 
