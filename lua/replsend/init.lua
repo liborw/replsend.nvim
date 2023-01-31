@@ -69,7 +69,7 @@ function M.start(lang)
 
   local opt = get_lang_options(lang)
   if opt == nil then
-    vim.api.nvim_echom({{'No Repl defined', 'None'}}, false, {})
+    vim.api.nvim_err_writeln('No REPL defined')
     return
   end
 
