@@ -37,6 +37,7 @@ local default_options = {
 
 
 M.options = default_options
+M.filetype = nil
 M.channel = nil
 
 function M.setup(options)
@@ -52,28 +53,28 @@ function M.setup(options)
 
 end
 
-local function get_lang_options(lang)
-
-  local options
-  if lang ~= nil and lang ~= "" then
-    options = M.options.languages[lang]
+local function get_filetype(forced)
+  local ft
+  if forced ~= nil and forced ~= "" then
+    ft = forced
   else
-    options = M.options.languages[vim.bo.filetype]
+    ft = vim.bo.filetype
   end
-
-  return options
+  return ft
 end
 
 function M.start(lang)
   local win = api.nvim_get_current_win()
 
-  local opt = get_lang_options(lang)
+  local ft = get_filetype(lang)
+  local opt = M.options.languages[ft]
   if opt == nil then
-    vim.api.nvim_err_writeln('No REPL defined')
+    vim.api.nvim_err_writeln('No REPL defined for ' .. ft)
     return
   end
 
   api.nvim_command("vsplit | term " .. opt.bin)
+  M.filetype = ft
   M.channel = tonumber(api.nvim_command_output("echo &channel"))
   vim.api.nvim_set_current_win(win)
 end
@@ -109,10 +110,10 @@ function M.send(args)
   local buf = api.nvim_get_current_buf()
   local lines = api.nvim_buf_get_lines(buf, 0, -1, false)
   local win = api.nvim_get_current_win()
-  local opt = get_lang_options()
 
-  if opt == nil then
-    print("Unsupported language")
+  local ft = get_filetype()
+  if ft ~= M.filetype then
+    vim.api.nvim_err_writeln('REPL not started or started for different filetype')
     return
   end
 
