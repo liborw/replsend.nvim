@@ -75,6 +75,8 @@ function M.start(lang)
 
   api.nvim_command("vsplit | term " .. opt.bin)
   M.filetype = ft
+  vim.cmd('startinsert')
+  vim.cmd('stopinsert')
   M.channel = tonumber(api.nvim_command_output("echo &channel"))
   vim.api.nvim_set_current_win(win)
 end
