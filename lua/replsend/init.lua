@@ -106,7 +106,7 @@ local function get_section(lines, row, sep)
   while i1 < #lines
   do
     if lines[i1]:find(sep,  1, true) then
-      i0 = i0 - 1
+      i1 = i1 - 1
       break
     end
     i1 = i1 + 1
