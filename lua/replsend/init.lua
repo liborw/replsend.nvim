@@ -31,6 +31,15 @@ local default_options = {
       join = "\n",
       prefix = "\x1b[200~",
       suffix = "\x1b[201~\n",
+    },
+    mdsh = {
+      bin = "",
+      args = {},
+      section_sep = "```",
+      comment = "#",
+      join = "\n",
+      prefix = "\x1b[200~",
+      suffix = "\x1b[201~\n",
     }
   }
 }
