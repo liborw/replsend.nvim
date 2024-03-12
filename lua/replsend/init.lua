@@ -113,12 +113,13 @@ function M.send(args)
   local lines = api.nvim_buf_get_lines(buf, 0, -1, false)
   local win = api.nvim_get_current_win()
 
-  local ft = get_filetype()
-  if ft ~= M.filetype then
-    vim.api.nvim_err_writeln('REPL not started or started for different filetype')
+  -- Check whether we have already openned repl
+  if M.channel == nil then
+    vim.api.nvim_err_writeln('REPL not started')
     return
   end
-  local opt = M.options.languages[ft]
+
+  local opt = M.options.languages[M.filetype]
 
   local from, to
   if args.range ~= 0 then
